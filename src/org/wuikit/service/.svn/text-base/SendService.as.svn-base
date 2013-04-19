@@ -1,0 +1,57 @@
+package com.fourd.service
+{
+	public class SendService
+	{
+		
+		public var id:String;
+		public var listeners:Array;
+		public var data:*;
+		
+		protected var type:Class;
+		
+		public function SendService(id:String = null,type:Class=null)
+		{
+			listeners = [];
+			this.type = type;
+			this.id = id;
+		}
+		
+		public function register( f:Function ):void{
+			if(listeners.indexOf( f ) >  -1) 
+				return;
+			
+			listeners.push( f );
+			
+		}
+		
+		public function unregister( f:Function ):void{
+			if(listeners.indexOf( f ) ==  -1) return;
+			listeners.splice( listeners.indexOf( f ), 1 );
+		}
+		
+		public function send(value:Object):void{
+			if(!isValidData( value )){
+				throw new Error("Invalid Send Type");
+				return;
+			}
+			data = value;
+			var i:int = listeners.length;
+			while(i--){
+				listeners[i].call(null, value )
+			}
+		}
+		
+		protected function isValidData( data:Object ):Boolean{
+			return null==type || data is type
+		} 
+		
+		public function clean():*{
+			data = null;
+		}
+		
+		public function dispose():*{
+			listeners = null;
+			return this;
+		}
+	}
+}
